@@ -56,6 +56,7 @@ def boyer_moore_with_counts(p, p_bm, t):
     >>> occurrences, num_alignments, num_character_comparisons = boyer_moore_with_counts(p, p_bm, t)
     >>> print(num_alignments)
     127974
+    >>> print(len(p))
     """
 
     i = 0
