@@ -30,6 +30,7 @@ class Index(object):
             hits.append(self.index[i][1])
             i += 1
         return hits
+        #  hits gives positions where first k char of p match in t.
 
 
 def readGenome(filename):
@@ -49,26 +50,30 @@ index = Index(t, 8)
 def queryIndex(p, t, index):
     k = index.k
     offsets = []
-
-    for i in index.query(p):
+    hits = index.query(p)
+    for i in hits:
         if p[k:] == t[i + k:i + len(p)]:
             offsets.append(i)
-    return offsets
+    return hits, offsets
 
 
 def pigeon_hole_index_matching(p, t, index, n):
     """ 
     n = maximum number of mismatches allowed
-    
-    """
-    segment_length = int(len(p) / (n + 1))
-    matches_set = set()
+    p = pattern to match in text t
+    index = object of Index class 
 
+    """
+
+    segment_length = int(len(p) / (n + 1))
+    matches = set()
+    total_hits = 0
     for i in range(n + 1):
         start = i * segment_length
         end = min((i + 1) * segment_length, len(p))
 
-        occurrences = queryIndex(p[start:end], t, index)
+        hits, occurrences = queryIndex(p[start:end], t, index)
+        total_hits += len(hits)
 
         for o in occurrences:
             if o < start or o - start + len(p) > len(t):
@@ -86,8 +91,9 @@ def pigeon_hole_index_matching(p, t, index, n):
                     if mismatches > n:
                         break
             if mismatches <= n:
-                matches_set.add(o - start)
-        return len(list(matches_set))
+                matches.add(o - start)
+
+    return(len(matches), total_hits)
 
 
 def naive_2mm(p, t):
@@ -107,6 +113,5 @@ def naive_2mm(p, t):
 
 
 p = 'GGCGCGGTGGCTCACGCCTGTAAT'
-
 print(pigeon_hole_index_matching(p, t, index, n=2))
 print(naive_2mm(p, t))
