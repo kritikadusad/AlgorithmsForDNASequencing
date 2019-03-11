@@ -1,3 +1,6 @@
+import itertools
+
+
 def overlap(a, b, min_length=3):
     """ Return length of longest suffix of 'a' matching
         a prefix of 'b' that is at least 'min_length'
@@ -12,9 +15,6 @@ def overlap(a, b, min_length=3):
         if b.startswith(a[start:]):
             return len(a) - start
         start += 1  # move just past previous match
-
-
-import itertools
 
 
 def scs(ss):
@@ -73,6 +73,52 @@ def scs_list(ss):
             all_substrings.add(shortest_sup)
 
     return len(all_substrings)
+
+
+def readFastq(filename):
+    sequences = []
+
+    with open(filename) as fh:
+        while True:
+            fh.readline()  # skip name line
+            seq = fh.readline().rstrip()  # read base sequence
+            fh.readline()  # skip placeholder line
+            qual = fh.readline().rstrip()  # base quality line
+            if len(seq) == 0:
+                break
+            sequences.append(seq)
+    return sequences
+
+
+reads = readFastq("ads1_week4_reads.fq")
+
+
+def pick_max_overlap(reads, k):
+    """ Returns 2 reads with maximum overlap"""
+    reada, readb = None, None
+    best_olen = 0
+    for a, b in itertools.permutations(reads, 2):
+        olen = overlap(a, b, min_length=k)
+        if olen > best_olen:
+            best_olen = olen
+            reada, readb = a, b
+    return reada, readb, best_olen
+
+
+def greedy_scs(reads, k):
+    """
+    Example 1:
+    >>> greedy_scs(["ABC", "BCA", "CAB"], 2)
+    'CABCA'
+    """
+
+    reada, readb, olen = pick_max_overlap(reads, k)
+    while olen > 0:
+        reads.remove(reada)
+        reads.remove(readb)
+        reads.append(reada + readb[olen:])
+        reada, readb, olen = pick_max_overlap(reads, k)
+    return "".join(reads)
 
 
 if __name__ == "__main__":
