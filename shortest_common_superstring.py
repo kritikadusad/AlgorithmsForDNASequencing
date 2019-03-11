@@ -45,21 +45,21 @@ def scs(ss):
     return shortest_sup  # return shortest
 
 
-def scs(ss):
+def scs_list(ss):
     """ 
     Returns shortest common superstring of given
     strings, which must be the same length 
 
     Example 1:
-    >>> scs(["ABC", "BCA", "CAB"])
-    'ABCAB'
-
-    Example 2:
-    >>> len(scs(["CCT", "CTT", "TGC", "TGG", "GAT", "ATT"]))
-    11
+    >>> scs_list(['ABC', 'BCA', 'CAB'])
+    3
+    >>> scs_list(['GAT', 'TAG', 'TCG', 'TGC', 'AAT', 'ATA'])
+    10
+    >>> scs_list(["CCT", "CTT", "TGC", "TGG", "GAT", "ATT"])
+    4
     """
-    shortest_sup = None
-    all_substrings = set()
+    shortest_sup_1 = scs(ss)
+    all_substrings = {shortest_sup_1}
     for ssperm in itertools.permutations(ss):
         sup = ssperm[0]  # superstring starts as first string
         for i in range(len(ss) - 1):
@@ -67,10 +67,13 @@ def scs(ss):
             olen = overlap(ssperm[i], ssperm[i + 1], min_length=1)
             # add non-overlapping portion of B to superstring
             sup += ssperm[i + 1][olen:]
-        if shortest_sup is None or len(sup) < len(shortest_sup):
-            shortest_sup = sup  # found shorter superstring
 
-    return shortest_sup  # return shortest
+        if len(sup) == len(shortest_sup_1):
+            shortest_sup = sup  # found shorter superstring
+            all_substrings.add(shortest_sup)
+
+    return len(all_substrings)
+
 
 if __name__ == "__main__":
     import doctest
