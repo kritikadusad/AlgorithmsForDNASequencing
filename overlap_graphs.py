@@ -23,8 +23,8 @@ def overlap(a, b, min_length=3):
         characters long.  If no such overlap exists,
         return 0. 
         Example: 
-        >>> a = ""
-        >>> b = ""
+        >>> a = "abbcd"
+        >>> b = "cdefff"
         >>> print(overlap(a, b))
 
         """
@@ -41,40 +41,46 @@ def overlap(a, b, min_length=3):
 
 def overlap_graph(reads, k):
     """
-
+    >>> reads = ['CGTACG', 'TACGTA', 'GTACGT', 'ACGTAC', 'GTACGA', 'TACGAT']
+    >>> overlap_graph(reads, 3)
     """
     start = perf_counter_ns()
     k_reads = {}
     overlapgraph = {}
     len_reads = len(reads)
+    # Preprocessing:
     for i in range(len_reads):
-        for j in range((len(reads[i])) - k + 1):
-            kmer = reads[i][j:j + k]
-            if kmer not in k_reads:
-                k_reads[kmer] = set()
-            k_reads[kmer].add(reads[i])
-
-    for kmer in k_reads:
-        for a, b in permutations(k_reads[kmer], 2):
-            olen = overlap(a, b, k)
-            if olen > 0:
+        kmer = reads[i][:k]
+        if kmer not in k_reads:
+            k_reads[kmer] = set()
+        k_reads[kmer].add(reads[i])
+    # print(k_reads)
+    for a in reads:
+        a_suffix = a[-k:]
+        if a_suffix in k_reads:
+            for b in k_reads[a_suffix]:
+                olen = overlap(a, b, k)
                 overlapgraph[(a, b)] = olen
-
-    count = 0
-    seen = set()
-    for entry in overlapgraph:
-        if entry[0] not in seen:
-            seen.add(entry[0])
-        else:
-            count += 1
-    print("count is: ", count)
+    # print(overlapgraph)
+    # count = 0
+    # seen = set()
+    # for entry in overlapgraph:
+    #     if entry[0] not in seen:
+    #         seen.add(entry[0])
+    #     else:
+    #         count += 1
+    # print("count is: ", count)
     # print(len(overlapgraph))
     end = perf_counter_ns() - start
     print(f"Time overlap_graph takes: {end/100} s")
 
 
-
-# reads = ['CGTACG', 'TACGTA', 'GTACGT', 'ACGTAC', 'GTACGA', 'TACGAT']
-reads = readFastq("ERR266411_1.for_asm.fastq")
+# reads = readFastq("ERR266411_1.for_asm.fastq")
 # print(len(reads))
-overlap_graph(reads, 30)
+# overlap_graph(reads, 30)
+
+
+if __name__ == "__main__":
+    import doctest
+    if doctest.testmod().failed == 0:
+        print("Tests passed.")

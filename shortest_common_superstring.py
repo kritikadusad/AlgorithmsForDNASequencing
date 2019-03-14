@@ -121,6 +121,8 @@ def greedy_scs(reads, k):
     return "".join(reads)
 
 
+print(greedy_scs(reads, 30))
+
 if __name__ == "__main__":
     import doctest
     if doctest.testmod().failed == 0:
